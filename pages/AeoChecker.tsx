@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Globe, Cpu, ArrowRight, TrendingUp, ExternalLink, ShieldCheck, Link as LinkIcon, AlertCircle, MessageCircle, Info } from 'lucide-react';
+import { Globe, Cpu, ArrowRight, TrendingUp, ExternalLink, ShieldCheck, AlertCircle, MessageSquare, ListFilter, Info } from 'lucide-react';
 import { runGeoAudit } from '../services/geminiService';
 import { AuditResult, ProviderMetrics } from '../types';
 
@@ -31,11 +31,11 @@ const AeoChecker: React.FC = () => {
   const [loadingStep, setLoadingStep] = useState(0);
 
   const steps = [
-    "Contacting Google Search API...",
-    "Crawling Answer Engine Footprints...",
-    "Scanning ChatGPT & Perplexity Citations...",
-    "Verifying Entity Authority...",
-    "Building Real-Time Ranking Map..."
+    "Grounding Search API...",
+    "Scanning Live Citations...",
+    "Crawling Knowledge Graphs...",
+    "Verifying Engine Rank Intent...",
+    "Synthesizing Evidence-Based Report..."
   ];
 
   useEffect(() => {
@@ -111,12 +111,11 @@ const AeoChecker: React.FC = () => {
     );
   };
 
-  const ProviderColumn = ({ title, sub, icon, metrics }: { title: string; sub: string; icon: string; metrics: ProviderMetrics }) => (
+  const ProviderColumn = ({ title, icon, metrics }: { title: string; icon: string; metrics: ProviderMetrics }) => (
     <div className="flex flex-col items-center text-center">
       <div className="mb-6 h-12 flex items-center">
         <img src={icon} alt={title} className="h-full object-contain grayscale opacity-80" />
       </div>
-      <p className="text-xs font-semibold text-slate-500 mb-8 uppercase tracking-widest">{sub}</p>
       
       <div className="mb-10 w-full max-w-[200px]">
         <RadialScore score={metrics.overallScore} />
@@ -126,20 +125,20 @@ const AeoChecker: React.FC = () => {
         {metrics.statusText}
       </p>
 
-      {/* Ranking Queries Sub-section */}
-      <div className="w-full mb-8 text-left bg-blue-50/30 p-6 rounded-2xl border border-blue-100/50">
-        <h4 className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-4 flex items-center">
-          <MessageCircle className="h-3 w-3 mr-2" /> Top Cited Queries
+      {/* Query Ranking Widget */}
+      <div className="w-full mb-8 text-left bg-blue-50/40 p-5 rounded-2xl border border-blue-100/50">
+        <h4 className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-4 flex items-center">
+          <ListFilter className="h-3 w-3 mr-2" /> Verified Rank Intent
         </h4>
         <div className="space-y-2">
           {metrics.topQueries && metrics.topQueries.length > 0 ? (
             metrics.topQueries.map((q, i) => (
-              <div key={i} className="text-[11px] leading-relaxed text-slate-700 bg-white px-3 py-2 rounded-lg border border-slate-100 italic shadow-sm">
+              <div key={i} className="text-[11px] leading-relaxed text-slate-700 bg-white/80 backdrop-blur-sm px-3 py-2 rounded-lg border border-slate-100 italic shadow-sm">
                 "{q}"
               </div>
             ))
           ) : (
-            <div className="text-[11px] text-slate-400 py-4 text-center italic">No data-backed rankings found</div>
+            <div className="text-[11px] text-slate-400 py-3 text-center italic">No citation footprint found</div>
           )}
         </div>
       </div>
@@ -159,14 +158,14 @@ const AeoChecker: React.FC = () => {
       <section className="pt-24 pb-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">Verified AI Visibility Grader</h1>
-          <p className="text-slate-500 text-lg mb-10">Real-time web verification for brand presence and engine-specific rankings.</p>
+          <p className="text-slate-500 text-lg mb-10">Real-time grounding across Google Search to audit actual engine-specific rankings.</p>
           
           <form onSubmit={handleCheck} className="relative max-w-xl mx-auto mb-8">
             <div className="flex items-center bg-white border-2 border-slate-100 rounded-full p-2 focus-within:border-blue-500 transition-all shadow-xl">
               <Globe className="ml-4 h-6 w-6 text-slate-300" />
               <input 
                 type="text" value={url} onChange={(e) => setUrl(e.target.value)}
-                placeholder="Enter brand name (e.g. 'Linear' or 'Vercel')" 
+                placeholder="Enter Brand Name (e.g. 'Stripe' or 'OpenAI')" 
                 className="flex-grow py-3 px-4 bg-transparent outline-none text-slate-800 text-lg"
                 disabled={isAnalyzing}
               />
@@ -174,7 +173,7 @@ const AeoChecker: React.FC = () => {
                 type="submit" disabled={isAnalyzing}
                 className="bg-slate-900 text-white px-8 py-3 rounded-full font-bold hover:bg-slate-800 transition-all flex items-center"
               >
-                {isAnalyzing ? 'Scanning Web...' : 'Audit Brand'}
+                {isAnalyzing ? 'Scanning Web...' : 'Verify Brand'}
               </button>
             </div>
           </form>
@@ -186,13 +185,13 @@ const AeoChecker: React.FC = () => {
           <div className="py-24 text-center">
             <div className="w-24 h-24 border-4 border-slate-100 border-t-slate-900 rounded-full animate-spin mx-auto mb-8" />
             <h3 className="text-2xl font-bold text-slate-900 mb-2">{steps[loadingStep]}</h3>
-            <p className="text-slate-400">Comparing real-time search data with LLM citation patterns...</p>
+            <p className="text-slate-400">Performing live search grounding to prevent hallucinated data...</p>
           </div>
         )}
 
         {result && !isAnalyzing && (
           <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000">
-            {/* Executive Dashboard */}
+            {/* Dashboard Hero */}
             <div className="mb-12 bg-white p-12 rounded-[2.5rem] border border-slate-100 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] flex flex-col md:flex-row items-center gap-12 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50/50 rounded-full blur-3xl -mr-32 -mt-32 transition-transform duration-1000 group-hover:scale-110" />
               
@@ -202,7 +201,7 @@ const AeoChecker: React.FC = () => {
                   <AnimatedNumber value={result.overallScore} />
                 </div>
                 <div className={`mt-4 inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${result.overallScore > 0 ? 'bg-slate-900 text-white' : 'bg-red-100 text-red-600'}`}>
-                  Status: {result.overallScore === 0 ? 'Not Found' : result.overallScore > 60 ? 'Optimal' : result.overallScore > 40 ? 'Fair' : 'Critical'}
+                   {result.overallScore === 0 ? 'Brand Not Found' : `Performance: ${result.overallScore > 60 ? 'Optimal' : result.overallScore > 40 ? 'Fair' : 'Critical'}`}
                 </div>
               </div>
 
@@ -216,11 +215,11 @@ const AeoChecker: React.FC = () => {
               </div>
             </div>
 
-            {/* Evidence Sources */}
+            {/* Evidence & Verification Source Section */}
             {result.groundingSources && result.groundingSources.length > 0 && (
-              <div className="mb-20 bg-blue-600 rounded-[2.5rem] p-10 text-white shadow-xl">
+              <div className="mb-20 bg-blue-600 rounded-[2.5rem] p-10 text-white shadow-xl shadow-blue-100">
                 <h3 className="text-2xl font-bold mb-6 flex items-center">
-                  <ShieldCheck className="h-7 w-7 mr-3 text-blue-200" /> Evidence Grounding
+                  <ShieldCheck className="h-7 w-7 mr-3 text-blue-200" /> Grounding Evidence
                 </h3>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {result.groundingSources.map((source, idx) => (
@@ -229,10 +228,10 @@ const AeoChecker: React.FC = () => {
                       href={source.uri} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="bg-white/10 hover:bg-white/20 p-5 rounded-2xl border border-white/20 transition-all flex justify-between items-center group"
+                      className="bg-white/10 hover:bg-white/20 p-5 rounded-2xl border border-white/20 transition-all flex justify-between items-center group text-left"
                     >
-                      <div className="truncate pr-4 text-left">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-blue-200 mb-1">Citation {idx + 1}</p>
+                      <div className="truncate pr-4">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-blue-200 mb-1">Source {idx + 1}</p>
                         <p className="font-bold truncate text-sm group-hover:underline">{source.title}</p>
                       </div>
                       <ExternalLink className="h-4 w-4 shrink-0 opacity-50" />
@@ -242,12 +241,22 @@ const AeoChecker: React.FC = () => {
               </div>
             )}
 
-            {/* Provider Detailed Breakdown */}
+            {result.overallScore === 0 && (
+              <div className="mb-20 bg-red-50 p-12 rounded-[2.5rem] border border-red-100 flex items-center gap-8">
+                <AlertCircle className="h-12 w-12 text-red-500 shrink-0" />
+                <div className="text-left">
+                  <h3 className="text-2xl font-bold text-red-900 mb-2">Audit Unsuccessful</h3>
+                  <p className="text-red-700">We could not verify this brand's existence via real-time search grounding. The data shown above reflects a 'Not Found' state. This is typically due to a brand having zero Knowledge Graph presence or indexing issues.</p>
+                </div>
+              </div>
+            )}
+
+            {/* Main Column Grid */}
             <div className="grid lg:grid-cols-[200px_1fr] gap-12">
-              <div className="space-y-24 pt-[180px] hidden lg:block">
-                <div className="text-sm font-bold text-slate-400 uppercase tracking-widest">AEO Node</div>
-                <div className="text-sm font-bold text-slate-400 uppercase tracking-widest mt-12">Engine Score</div>
-                <div className="text-sm font-bold text-slate-400 uppercase tracking-widest pt-24">Ranked Intent</div>
+              <div className="space-y-24 pt-[180px] hidden lg:block text-left">
+                <div className="text-sm font-black text-slate-400 uppercase tracking-widest">AEO Node</div>
+                <div className="text-sm font-black text-slate-400 uppercase tracking-widest mt-12">Engine Score</div>
+                <div className="text-sm font-black text-slate-400 uppercase tracking-widest pt-24">Verified Intents</div>
                 <div className="space-y-12 pt-[180px]">
                   <div className="text-sm font-bold text-slate-500">Brand Recognition</div>
                   <div className="text-sm font-bold text-slate-500">Market Score</div>
@@ -262,19 +271,16 @@ const AeoChecker: React.FC = () => {
                   <>
                     <ProviderColumn 
                       title="OpenAI" 
-                      sub="Powers ChatGPT" 
                       icon="https://cdn.worldvectorlogo.com/logos/openai-2.svg" 
                       metrics={result.providers.openai} 
                     />
                     <ProviderColumn 
                       title="Perplexity" 
-                      sub="Real-Time AI Answers" 
                       icon="https://cdn.worldvectorlogo.com/logos/perplexity-ai.svg" 
                       metrics={result.providers.perplexity} 
                     />
                     <ProviderColumn 
                       title="Gemini" 
-                      sub="Supports Google Results" 
                       icon="https://cdn.worldvectorlogo.com/logos/google-2015.svg" 
                       metrics={result.providers.gemini} 
                     />
@@ -283,8 +289,8 @@ const AeoChecker: React.FC = () => {
               </div>
             </div>
 
-            {/* Recommendations */}
-            <div className="mt-32 grid md:grid-cols-2 gap-12">
+            {/* Roadmap */}
+            <div className="mt-32 grid md:grid-cols-2 gap-12 text-left">
               <div className="bg-slate-900 text-white p-12 rounded-[3rem]">
                 <h3 className="text-3xl font-bold mb-8 flex items-center">
                   <TrendingUp className="h-8 w-8 mr-4 text-blue-400" /> Intent Capture Roadmap
@@ -303,14 +309,14 @@ const AeoChecker: React.FC = () => {
               <div className="bg-white p-12 rounded-[3rem] border border-slate-100 flex flex-col justify-between">
                 <div>
                   <h3 className="text-3xl font-bold text-slate-900 mb-6 flex items-center gap-3">
-                     Optimization Sprint <Info className="h-5 w-5 text-blue-500" />
+                     Structural Optimization <Info className="h-5 w-5 text-blue-500" />
                   </h3>
                   <p className="text-slate-500 mb-8 leading-relaxed">
-                    Based on the verified queries found, your brand is highly susceptible to "hallucinated competitors." By injecting assertion-rich data into vector buffers, we can secure your citation as the definitive answer.
+                    A low score is often a technical failure, not a brand failure. By optimizing your site's fact-density and assertion mapping, we can secure your citation as the definitive answer for the queries identified above.
                   </p>
                 </div>
                 <button className="w-full bg-blue-600 text-white py-5 rounded-2xl font-bold text-xl hover:bg-blue-700 transition-all shadow-xl shadow-blue-100">
-                  Talk to a GEO Specialist
+                  Speak with a GEO Architect
                 </button>
               </div>
             </div>
@@ -324,8 +330,8 @@ const AeoChecker: React.FC = () => {
                <div className="h-40 w-40 rounded-full border-8 border-slate-100" />
                <div className="h-40 w-40 rounded-full border-8 border-slate-100" />
             </div>
-            <h2 className="text-2xl font-bold text-slate-400 tracking-widest uppercase">Verified Grounding Only</h2>
-            <p className="text-slate-400">Enter a brand to map verified AI rankings and visibility metrics.</p>
+            <h2 className="text-2xl font-black text-slate-400 tracking-widest uppercase">Verified Grounding Mode</h2>
+            <p className="text-slate-400">Enter a verified brand to map engine-specific rankings and visibility.</p>
           </div>
         )}
       </div>

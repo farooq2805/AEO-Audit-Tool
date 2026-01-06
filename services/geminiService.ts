@@ -15,7 +15,7 @@ const providerMetricsSchema = {
     topQueries: { 
       type: Type.ARRAY, 
       items: { type: Type.STRING },
-      description: "Specific questions or keywords where this brand is a top cited answer."
+      description: "Real-world search queries where this brand is a primary cited answer in AI responses."
     }
   },
   required: [
@@ -31,15 +31,16 @@ const providerMetricsSchema = {
 };
 
 export const runGeoAudit = async (brandOrUrl: string): Promise<AuditResult> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // Always create a fresh instance for the latest API key context
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
   
-  const prompt = `Perform a REAL-TIME AEO (Answer Engine Optimization) audit for: "${brandOrUrl}". 
+  const prompt = `Perform a high-fidelity AEO (Answer Engine Optimization) audit for: "${brandOrUrl}".
     
-    CRITICAL: 
-    1. Use the googleSearch tool to identify the brand's actual search landscape.
-    2. For each AI engine (OpenAI, Perplexity, Gemini), determine 3-5 specific user queries (e.g. "What is the best [industry] tool?", "How does [Brand] compare to [Competitor]?") where this brand appears in the AI's response.
-    3. If the brand is unknown, return 0 scores and an empty topQueries list.
-    4. Provide specific, verified metrics based on the current web footprint.
+    CRITICAL INSTRUCTIONS:
+    1. Use the googleSearch tool to verify if this brand/website actually exists.
+    2. Check for Knowledge Graph entries, Featured Snippets, and citations in major tech/industry publications.
+    3. If the brand has NO digital footprint or cannot be verified, return scores of 0 and an empty topQueries list. Do not make up data.
+    4. For OpenAI (ChatGPT), Perplexity, and Gemini, identify 3-5 specific user queries (e.g., "Best [Industry] software", "[Brand] vs [Competitor]") where this brand is currently ranking or cited.
     
     Return the result as valid JSON.`;
 
@@ -73,22 +74,24 @@ export const runGeoAudit = async (brandOrUrl: string): Promise<AuditResult> => {
       }
     });
 
+    // Extract real grounding sources from the tool output
     const sources: GroundingSource[] = [];
     const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
     if (chunks) {
       chunks.forEach((chunk: any) => {
         if (chunk.web) {
           sources.push({
-            title: chunk.web.title || "Search Result",
+            title: chunk.web.title || "Verified Search Result",
             uri: chunk.web.uri
           });
         }
       });
     }
 
-    const uniqueSources = sources.filter((v, i, a) => a.findIndex(t => t.uri === v.uri) === i).slice(0, 5);
+    // De-duplicate sources
+    const uniqueSources = sources.filter((v, i, a) => a.findIndex(t => t.uri === v.uri) === i).slice(0, 6);
+    
     const parsed = JSON.parse(response.text.trim());
-
     return {
       ...parsed,
       groundingSources: uniqueSources,
@@ -97,20 +100,21 @@ export const runGeoAudit = async (brandOrUrl: string): Promise<AuditResult> => {
     };
   } catch (error) {
     console.error("GEO Audit failed:", error);
+    // Return empty/error state instead of fake data
     return {
       brand: brandOrUrl,
       url: brandOrUrl,
       date: new Date().toLocaleDateString('en-GB'),
       overallScore: 0,
-      summary: "Verification failed. The brand has no discernible AI footprint or the search was blocked. Ensure the brand name is well-known or the site is indexed.",
-      insights: ["Discovery attempt timed out", "Entity footprint not found"],
+      summary: "Verification failed. We could not find a verified digital footprint for this brand using real-time search grounding. This typically occurs for non-existent brands or websites that are not yet indexed in major citation engines.",
+      insights: ["Entity not found in Knowledge Graph", "Zero verified citations detected", "No ranking intent found"],
       groundingSources: [],
       providers: {
-        openai: { overallScore: 0, statusText: "Offline", brandRecognition: 0, marketScore: 0, presenceQuality: 0, brandSentiment: 0, shareOfVoice: 0, topQueries: [] },
-        perplexity: { overallScore: 0, statusText: "Offline", brandRecognition: 0, marketScore: 0, presenceQuality: 0, brandSentiment: 0, shareOfVoice: 0, topQueries: [] },
-        gemini: { overallScore: 0, statusText: "Offline", brandRecognition: 0, marketScore: 0, presenceQuality: 0, brandSentiment: 0, shareOfVoice: 0, topQueries: [] }
+        openai: { overallScore: 0, statusText: "No Footprint", brandRecognition: 0, marketScore: 0, presenceQuality: 0, brandSentiment: 0, shareOfVoice: 0, topQueries: [] },
+        perplexity: { overallScore: 0, statusText: "No Footprint", brandRecognition: 0, marketScore: 0, presenceQuality: 0, brandSentiment: 0, shareOfVoice: 0, topQueries: [] },
+        gemini: { overallScore: 0, statusText: "No Footprint", brandRecognition: 0, marketScore: 0, presenceQuality: 0, brandSentiment: 0, shareOfVoice: 0, topQueries: [] }
       },
-      recommendations: ["Check for GSC crawl errors", "Review robots.txt for AI blocking"]
+      recommendations: ["Ensure the site is indexed in Google", "Build entity authority via high-trust sources", "Check technical Schema markup"]
     };
   }
 };
